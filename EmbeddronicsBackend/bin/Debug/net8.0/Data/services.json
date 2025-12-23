@@ -1,0 +1,42 @@
+[
+  {
+    "Id": 1,
+    "Name": "PCB Design & Layout",
+    "Description": "High-speed, mixed-signal, and RF PCB designs. From schematic capture to manufacturing-ready Gerbers. We specialize in impedance control, EMI/EMC optimization, and multilayer stacks (4-12+ layers).",
+    "Icon": "Cpu",
+    "BasePrice": 500,
+    "IsActive": true
+  },
+  {
+    "Id": 2,
+    "Name": "PCB Manufacturing Support",
+    "Description": "Seamless transition to production. We generate precise Gerber files, create optimized BOMs, and perform rigorous DFM checks to ensure your board is ready for the fab house.",
+    "Icon": "Settings",
+    "BasePrice": 300,
+    "IsActive": true
+  },
+  {
+    "Id": 3,
+    "Name": "Firmware & Prototyping",
+    "Description": "Bare-metal and RTOS firmware for STM32, ESP32, and nRF52. We build and debug the first prototypes in our lab.",
+    "Icon": "Code",
+    "BasePrice": 1000,
+    "IsActive": true
+  },
+  {
+    "Id": 4,
+    "Name": "Web Development",
+    "Description": "Modern, high-performance web applications to interface with your hardware. React, Node.js, and Cloud Infrastructure integration.",
+    "Icon": "Globe",
+    "BasePrice": 1500,
+    "IsActive": true
+  },
+  {
+    "Id": 5,
+    "Name": "Mobile App Development",
+    "Description": "Native and Cross-platform mobile apps for iOS and Android. Bluetooth Low Energy (BLE) integration specialists.",
+    "Icon": "Smartphone",
+    "BasePrice": 2000,
+    "IsActive": true
+  }
+]

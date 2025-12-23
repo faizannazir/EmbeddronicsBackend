@@ -1,0 +1,52 @@
+[
+  {
+    "Id": 1,
+    "ClientName": "Pamela James",
+    "ClientEmail": "pamela@example.com",
+    "ProductId": 0,
+    "ProductName": "Web Design, SEO, Social Media",
+    "Rating": 5,
+    "Comment": "Embeddronics has been an invaluable partner in my photography journey. They redesigned my website, making it more visually appealing and easier to navigate.",
+    "IsApproved": true
+  },
+  {
+    "Id": 2,
+    "ClientName": "Dr. Othman Alfurayh",
+    "ClientEmail": "othman@example.com",
+    "ProductId": 0,
+    "ProductName": "Embedded System Design",
+    "Rating": 5,
+    "Comment": "Looking for cutting-edge embedded system design? Choose Embeddronics. They offer a wide range of electronic design services.",
+    "IsApproved": true
+  },
+  {
+    "Id": 3,
+    "ClientName": "Robert Slade-Baker",
+    "ClientEmail": "robert@vertexgolf.com",
+    "ProductId": 0,
+    "ProductName": "Embedded System Design",
+    "Rating": 5,
+    "Comment": "Embeddronics has been our trusted partner for a long time, collaborating on numerous projects. Their expertise in embedded systems has been instrumental to our success.",
+    "IsApproved": true
+  },
+  {
+    "Id": 4,
+    "ClientName": "Amir Zakaria",
+    "ClientEmail": "amir@kacific.com",
+    "ProductId": 0,
+    "ProductName": "PCB Design & Manufacturing",
+    "Rating": 5,
+    "Comment": "Embeddronics provided us with a comprehensive solution for our satellite tracking system. Their team handled everything from design to manufacturing.",
+    "IsApproved": true
+  },
+  {
+    "Id": 5,
+    "ClientName": "William Smith",
+    "ClientEmail": "william@crave.ca",
+    "ProductId": 0,
+    "ProductName": "IoT Solutions",
+    "Rating": 5,
+    "Comment": "Embeddronics has been an invaluable partner in our IoT journey. Their team provided the expertise we needed to deploy innovative IoT solutions.",
+    "IsApproved": true
+  }
+]

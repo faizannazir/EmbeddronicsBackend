@@ -1,0 +1,29 @@
+[
+  {
+    "Id": 1,
+    "Name": "Industrial ESP32-S3 Gateway Module",
+    "Description": "DIN-rail mountable gateway core. Features RS485 (Modbus) and CAN bus interface. Designed for industrial automation retrofits.",
+    "Price": 149.99,
+    "Category": "Hardware Modules",
+    "ImageUrl": "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&q=80&w=800",
+    "InStock": true
+  },
+  {
+    "Id": 2,
+    "Name": "STM32H7 DSP Breakout Board",
+    "Description": "High-density breakout for STM32H7. 4-Layer impedance controlled design for signal integrity testing.",
+    "Price": 89.50,
+    "Category": "Development Boards",
+    "ImageUrl": "https://images.unsplash.com/photo-1603732551681-2e91159b9dc2?auto=format&fit=crop&q=80&w=800",
+    "InStock": true
+  },
+  {
+    "Id": 3,
+    "Name": "BLE 5.2 Sensor Node (Reference Design)",
+    "Description": "Low-power sensor node reference. nRF52832 based. Schematics available upon request.",
+    "Price": 34.00,
+    "Category": "Sensors",
+    "ImageUrl": "https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&q=80&w=800",
+    "InStock": true
+  }
+]

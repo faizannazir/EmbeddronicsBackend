@@ -1,0 +1,3 @@
+[
+  { "Id": 1, "QuoteNumber": "QT-001", "ClientName": "John Doe", "ClientEmail": "john@example.com", "ClientPhone": "1234567890", "SubTotal": 1000, "Tax": 100, "Total": 1100, "Status": "Sent", "SentDate": "2025-12-21T10:00:00", "ExpiryDate": "2026-01-18T10:00:00" }
+]

@@ -1,0 +1,57 @@
+[
+  {
+    "Id": 1,
+    "Title": "Syncrobit Helium (HNT) Miner",
+    "Description": "IoT: Hardware and Software Development for Helium (HNT) mining device. Complete embedded system design, firmware, and cloud integration for Syncrobit.",
+    "Category": "IoT",
+    "ImageUrl": "/portfolio/printedBoard-768x512.jpg",
+    "Technologies": ["IoT", "Hardware", "Software"],
+    "ClientName": "Syncro Bit",
+    "CompletedDate": "2025-10-23T00:00:00Z",
+    "Status": "Completed"
+  },
+  {
+    "Id": 2,
+    "Title": "Temperature and Humidity Monitoring System",
+    "Description": "IoT: End-to-end hardware and software for real-time temperature and humidity monitoring. Custom PCB, sensor integration, and cloud dashboard.",
+    "Category": "IoT",
+    "ImageUrl": "/portfolio/nrf52840_Top-Large-768x539.png",
+    "Technologies": ["IoT", "Hardware", "Software"],
+    "ClientName": "Industrial Client",
+    "CompletedDate": "2025-08-23T00:00:00Z",
+    "Status": "Completed"
+  },
+  {
+    "Id": 3,
+    "Title": "RK3588 Based High Speed IO Board",
+    "Description": "Hardware Development: High-speed IO board based on RK3588 SoC. Designed for industrial and research applications requiring fast data acquisition.",
+    "Category": "Hardware",
+    "ImageUrl": "/portfolio/top-1024x697.png",
+    "Technologies": ["Hardware"],
+    "ClientName": "Research Lab",
+    "CompletedDate": "2025-09-23T00:00:00Z",
+    "Status": "Completed"
+  },
+  {
+    "Id": 4,
+    "Title": "BLE Based Smart Putter Device",
+    "Description": "Hardware Development: Bluetooth Low Energy (BLE) enabled smart golf putter for real-time swing analysis and feedback.",
+    "Category": "Hardware",
+    "ImageUrl": "/portfolio/vertex-main.jpg",
+    "Technologies": ["Hardware", "BLE"],
+    "ClientName": "Vertex Golf",
+    "CompletedDate": "2025-11-23T00:00:00Z",
+    "Status": "Completed"
+  },
+  {
+    "Id": 5,
+    "Title": "Self Scanning Solution",
+    "Description": "Hardware Development and Programming: Self-service scanning solution for retail and logistics. Embedded software, custom hardware, and seamless integration.",
+    "Category": "Hardware",
+    "ImageUrl": "/portfolio/slide1.jpg",
+    "Technologies": ["Hardware", "Embedded"],
+    "ClientName": "Retail Client",
+    "CompletedDate": "2025-12-23T00:00:00Z",
+    "Status": "Completed"
+  }
+]
