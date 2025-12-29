@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using EmbeddronicsBackend.Models;
 using EmbeddronicsBackend.Services;
+using EmbeddronicsBackend.Authorization.Attributes;
 
 namespace EmbeddronicsBackend.Controllers
 {
@@ -16,6 +18,7 @@ namespace EmbeddronicsBackend.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous] // Public access for services catalog
         public async Task<IActionResult> GetAll()
         {
             Serilog.Log.Information("Services list accessed by user: {User}", User?.Identity?.Name ?? "anonymous");
@@ -24,6 +27,7 @@ namespace EmbeddronicsBackend.Controllers
         }
 
         [HttpGet("{id}")]
+        [AllowAnonymous] // Public access for individual services
         public async Task<IActionResult> GetById(int id)
         {
             Serilog.Log.Information("Service {Id} accessed by user: {User}", id, User?.Identity?.Name ?? "anonymous");
@@ -33,6 +37,7 @@ namespace EmbeddronicsBackend.Controllers
         }
 
         [HttpPost]
+        [AdminCRM] // Admin-only access for creating services
         public async Task<IActionResult> Create([FromBody] Service service)
         {
             Serilog.Log.Information("Creating new service by user: {User}", User?.Identity?.Name ?? "anonymous");
@@ -41,6 +46,7 @@ namespace EmbeddronicsBackend.Controllers
         }
 
         [HttpPut("{id}")]
+        [AdminCRM] // Admin-only access for updating services
         public async Task<IActionResult> Update(int id, [FromBody] Service service)
         {
             Serilog.Log.Information("Updating service {Id} by user: {User}", id, User?.Identity?.Name ?? "anonymous");
@@ -50,6 +56,7 @@ namespace EmbeddronicsBackend.Controllers
         }
 
         [HttpDelete("{id}")]
+        [AdminCRM] // Admin-only access for deleting services
         public async Task<IActionResult> Delete(int id)
         {
             Serilog.Log.Information("Deleting service {Id} by user: {User}", id, User?.Identity?.Name ?? "anonymous");

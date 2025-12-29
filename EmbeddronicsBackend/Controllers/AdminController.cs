@@ -3,11 +3,14 @@ using Microsoft.EntityFrameworkCore;
 using EmbeddronicsBackend.Data;
 using EmbeddronicsBackend.Models.Entities;
 using EmbeddronicsBackend.Services;
+using EmbeddronicsBackend.Authorization.Attributes;
+using Microsoft.AspNetCore.Authorization;
 
 namespace EmbeddronicsBackend.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize] // Require authentication for all actions
 public class AdminController : ControllerBase
 {
     private readonly EmbeddronicsDbContext _context;
@@ -20,6 +23,7 @@ public class AdminController : ControllerBase
     }
 
     [HttpGet("users")]
+    [ManageClients] // Admin-only access for managing clients/users
     public async Task<IActionResult> GetUsers()
     {
         var users = await _context.Users
@@ -39,6 +43,7 @@ public class AdminController : ControllerBase
     }
 
     [HttpGet("registration-settings")]
+    [AdminCRM] // Admin CRM access required
     public IActionResult GetRegistrationSettings()
     {
         var settings = new
@@ -52,6 +57,7 @@ public class AdminController : ControllerBase
     }
 
     [HttpGet("test-seeding")]
+    [AdminCRM] // Admin CRM access required
     public async Task<IActionResult> TestSeeding()
     {
         var adminCount = await _context.Users.CountAsync(u => u.Role == "admin");

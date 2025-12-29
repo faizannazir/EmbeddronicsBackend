@@ -32,6 +32,15 @@ namespace EmbeddronicsBackend.Models.DTOs
         public string RefreshToken { get; set; } = string.Empty;
     }
 
+    public class ClientRegistrationRequest
+    {
+        public string Email { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+        public string? Company { get; set; }
+        public string? Phone { get; set; }
+    }
+
     public class AuthResult
     {
         public bool Success { get; set; }

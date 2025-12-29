@@ -2,7 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using EmbeddronicsBackend.Models;
 using EmbeddronicsBackend.Services;
 using EmbeddronicsBackend.Models.Exceptions;
-using EmbeddronicsBackend.Attributes;
+using EmbeddronicsBackend.Authorization.Attributes;
+using Microsoft.AspNetCore.Authorization;
 using Serilog;
 
 namespace EmbeddronicsBackend.Controllers
@@ -19,6 +20,7 @@ namespace EmbeddronicsBackend.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous] // Public access for product catalog
         public async Task<ActionResult<ApiResponse<IEnumerable<Product>>>> GetAll()
         {
             Log.Information("Products list accessed by user: {User}", User?.Identity?.Name ?? "anonymous");
@@ -28,6 +30,7 @@ namespace EmbeddronicsBackend.Controllers
         }
 
         [HttpGet("{id}")]
+        [AllowAnonymous] // Public access for individual products
         public async Task<ActionResult<ApiResponse<Product>>> GetById(int id)
         {
             Log.Information("Product {Id} accessed by user: {User}", id, User?.Identity?.Name ?? "anonymous");
@@ -47,7 +50,7 @@ namespace EmbeddronicsBackend.Controllers
         }
 
         [HttpPost]
-        [AdminOnly]
+        [ManageProducts] // Admin-only access for creating products
         public async Task<ActionResult<ApiResponse<Product>>> Create([FromBody] Product product)
         {
             Log.Information("Creating new product by admin user: {User}", User?.Identity?.Name ?? "anonymous");
@@ -69,7 +72,7 @@ namespace EmbeddronicsBackend.Controllers
         }
 
         [HttpPut("{id}")]
-        [AdminOnly]
+        [ManageProducts] // Admin-only access for updating products
         public async Task<ActionResult<ApiResponse<Product>>> Update(int id, [FromBody] Product product)
         {
             Log.Information("Updating product {Id} by admin user: {User}", id, User?.Identity?.Name ?? "anonymous");
@@ -95,7 +98,7 @@ namespace EmbeddronicsBackend.Controllers
         }
 
         [HttpDelete("{id}")]
-        [AdminOnly]
+        [ManageProducts] // Admin-only access for deleting products
         public async Task<ActionResult<ApiResponse>> Delete(int id)
         {
             Log.Information("Deleting product {Id} by admin user: {User}", id, User?.Identity?.Name ?? "anonymous");

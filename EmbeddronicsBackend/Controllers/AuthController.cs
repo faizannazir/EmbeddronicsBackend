@@ -23,6 +23,7 @@ namespace EmbeddronicsBackend.Controllers
         /// Authenticate user with email and password
         /// </summary>
         [HttpPost("login")]
+        [AllowAnonymous] // Allow anonymous access for login
         public async Task<ActionResult<ApiResponse<AuthResult>>> Login([FromBody] LoginRequest request)
         {
             try
@@ -47,6 +48,7 @@ namespace EmbeddronicsBackend.Controllers
         /// Verify OTP and complete authentication
         /// </summary>
         [HttpPost("verify-otp")]
+        [AllowAnonymous] // Allow anonymous access for OTP verification
         public async Task<ActionResult<ApiResponse<AuthResult>>> VerifyOtp([FromBody] OtpVerificationRequest request)
         {
             try
@@ -71,6 +73,7 @@ namespace EmbeddronicsBackend.Controllers
         /// Refresh access token using refresh token
         /// </summary>
         [HttpPost("refresh-token")]
+        [AllowAnonymous] // Allow anonymous access for token refresh
         public async Task<ActionResult<ApiResponse<AuthResult>>> RefreshToken([FromBody] RefreshTokenRequest request)
         {
             try
@@ -95,6 +98,7 @@ namespace EmbeddronicsBackend.Controllers
         /// Register a new client account
         /// </summary>
         [HttpPost("register")]
+        [AllowAnonymous] // Allow anonymous access for registration
         public async Task<ActionResult<ApiResponse<bool>>> Register([FromBody] ClientRegistrationRequest request)
         {
             try

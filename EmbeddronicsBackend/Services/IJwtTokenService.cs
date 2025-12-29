@@ -14,5 +14,8 @@ namespace EmbeddronicsBackend.Services
         Task SaveRefreshTokenAsync(int userId, string refreshToken);
         Task RevokeRefreshTokenAsync(string refreshToken);
         Task RevokeAllUserTokensAsync(int userId);
+        Task BlacklistTokenAsync(string token);
+        Task<bool> IsTokenBlacklistedAsync(string token);
+        string? ExtractJtiFromToken(string token);
     }
 }

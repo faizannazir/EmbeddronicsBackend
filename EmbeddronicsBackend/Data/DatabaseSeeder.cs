@@ -1,7 +1,6 @@
 using EmbeddronicsBackend.Models.Entities;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Cryptography;
-using System.Text;
+using BCrypt.Net;
 
 namespace EmbeddronicsBackend.Data;
 
@@ -11,6 +10,9 @@ public static class DatabaseSeeder
     {
         // Ensure database is created
         await context.Database.EnsureCreatedAsync();
+
+        // Check if we need to migrate existing admin users from SHA256 to BCrypt
+        await MigrateExistingAdminPasswordsAsync(context);
 
         // Check if admin users already exist
         if (await context.Users.AnyAsync(u => u.Role == "admin"))
@@ -51,6 +53,40 @@ public static class DatabaseSeeder
         await context.SaveChangesAsync();
     }
 
+    private static async Task MigrateExistingAdminPasswordsAsync(EmbeddronicsDbContext context)
+    {
+        // Get all admin users that might have SHA256 hashed passwords
+        var adminUsers = await context.Users
+            .Where(u => u.Role == "admin")
+            .ToListAsync();
+
+        var defaultPassword = "Admin@123";
+        var legacySha256Hash1 = LegacyHashPassword(defaultPassword, "EmbeddronicsSalt");
+        var legacySha256Hash2 = LegacyHashPassword(defaultPassword, "EmbeddronicsSalt2024");
+
+        bool hasChanges = false;
+
+        foreach (var user in adminUsers)
+        {
+            // Check if this user has a legacy SHA256 hash
+            if (user.PasswordHash == legacySha256Hash1 || user.PasswordHash == legacySha256Hash2)
+            {
+                // Migrate to BCrypt
+                user.PasswordHash = HashPassword(defaultPassword);
+                user.UpdatedAt = DateTime.UtcNow;
+                hasChanges = true;
+                
+                Console.WriteLine($"Migrated password for admin user: {user.Email}");
+            }
+        }
+
+        if (hasChanges)
+        {
+            await context.SaveChangesAsync();
+            Console.WriteLine("Admin password migration completed.");
+        }
+    }
+
     private static string GetNameFromEmail(string email)
     {
         return email switch
@@ -65,9 +101,14 @@ public static class DatabaseSeeder
 
     private static string HashPassword(string password)
     {
-        // Simple password hashing - in production, use BCrypt or similar
-        using var sha256 = SHA256.Create();
-        var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password + "EmbeddronicsSalt"));
+        return BCrypt.Net.BCrypt.HashPassword(password, BCrypt.Net.BCrypt.GenerateSalt(12));
+    }
+
+    private static string LegacyHashPassword(string password, string salt)
+    {
+        // Legacy SHA256 hashing method for migration purposes only
+        using var sha256 = System.Security.Cryptography.SHA256.Create();
+        var hashedBytes = sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password + salt));
         return Convert.ToBase64String(hashedBytes);
     }
 }

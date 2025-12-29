@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using EmbeddronicsBackend.Models;
 using EmbeddronicsBackend.Services;
+using EmbeddronicsBackend.Authorization.Attributes;
 
 namespace EmbeddronicsBackend.Controllers
 {
@@ -16,6 +18,7 @@ namespace EmbeddronicsBackend.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous] // Public access for blog posts
         public async Task<IActionResult> GetAll()
         {
             Serilog.Log.Information("Blog posts accessed by user: {User}", User?.Identity?.Name ?? "anonymous");
@@ -24,6 +27,7 @@ namespace EmbeddronicsBackend.Controllers
         }
 
         [HttpGet("{id}")]
+        [AllowAnonymous] // Public access for individual blog posts
         public async Task<IActionResult> GetById(int id)
         {
             Serilog.Log.Information("Blog post {Id} accessed by user: {User}", id, User?.Identity?.Name ?? "anonymous");
@@ -38,6 +42,7 @@ namespace EmbeddronicsBackend.Controllers
         }
 
         [HttpPost]
+        [AdminCRM] // Admin-only access for creating blog posts
         public async Task<IActionResult> Create([FromBody] BlogPost post)
         {
             Serilog.Log.Information("Creating new blog post by user: {User}", User?.Identity?.Name ?? "anonymous");
@@ -46,6 +51,7 @@ namespace EmbeddronicsBackend.Controllers
         }
 
         [HttpPut("{id}")]
+        [AdminCRM] // Admin-only access for updating blog posts
         public async Task<IActionResult> Update(int id, [FromBody] BlogPost post)
         {
             Serilog.Log.Information("Updating blog post {Id} by user: {User}", id, User?.Identity?.Name ?? "anonymous");
@@ -55,6 +61,7 @@ namespace EmbeddronicsBackend.Controllers
         }
 
         [HttpDelete("{id}")]
+        [AdminCRM] // Admin-only access for deleting blog posts
         public async Task<IActionResult> Delete(int id)
         {
             Serilog.Log.Information("Deleting blog post {Id} by user: {User}", id, User?.Identity?.Name ?? "anonymous");

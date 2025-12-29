@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using System.ComponentModel.DataAnnotations;
 
 namespace EmbeddronicsBackend.Controllers
@@ -8,6 +9,7 @@ namespace EmbeddronicsBackend.Controllers
     public class ContactController : ControllerBase
     {
         [HttpPost]
+        [AllowAnonymous] // Allow anonymous access for contact form
         public IActionResult SendMessage([FromBody] ContactRequest request)
         {
             Serilog.Log.Information("Contact form submitted by {Name} ({Email})", request.Name, request.Email);

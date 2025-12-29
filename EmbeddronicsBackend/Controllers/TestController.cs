@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using EmbeddronicsBackend.Models;
 using EmbeddronicsBackend.Models.Exceptions;
 using EmbeddronicsBackend.Attributes;
+using EmbeddronicsBackend.Models.DTOs;
 using Serilog;
 
 namespace EmbeddronicsBackend.Controllers
@@ -77,6 +78,36 @@ namespace EmbeddronicsBackend.Controllers
         {
             Log.Information("Client-only endpoint accessed by user: {User}", User?.Identity?.Name ?? "anonymous");
             return Success("Client access granted!", "Client-only endpoint test");
+        }
+
+        /// <summary>
+        /// Test FluentValidation with a sample registration request
+        /// </summary>
+        [HttpPost("validation")]
+        public ActionResult<ApiResponse<string>> TestValidation([FromBody] ClientRegistrationRequest request)
+        {
+            Log.Information("Validation test endpoint called with email: {Email}", request.Email);
+            return Success("Validation passed!", "FluentValidation test successful");
+        }
+
+        /// <summary>
+        /// Test FluentValidation with a sample order creation request
+        /// </summary>
+        [HttpPost("order-validation")]
+        public ActionResult<ApiResponse<string>> TestOrderValidation([FromBody] CreateOrderRequest request)
+        {
+            Log.Information("Order validation test endpoint called with title: {Title}", request.Title);
+            return Success("Order validation passed!", "Order FluentValidation test successful");
+        }
+
+        /// <summary>
+        /// Test FluentValidation with a sample contact form request
+        /// </summary>
+        [HttpPost("contact-validation")]
+        public ActionResult<ApiResponse<string>> TestContactValidation([FromBody] ContactFormRequest request)
+        {
+            Log.Information("Contact validation test endpoint called with email: {Email}", request.Email);
+            return Success("Contact validation passed!", "Contact FluentValidation test successful");
         }
     }
 }

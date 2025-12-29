@@ -5,7 +5,7 @@ using EmbeddronicsBackend.Models.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using System.Security.Cryptography;
-using System.Text;
+using BCrypt.Net;
 
 namespace EmbeddronicsBackend.Services
 {
@@ -68,6 +68,9 @@ namespace EmbeddronicsBackend.Services
                         Message = "Invalid email or password"
                     };
                 }
+
+                // Check if user is using legacy password and migrate to BCrypt
+                await MigrateUserPasswordIfNeeded(user, request.Password);
 
                 // Generate and store OTP
                 var otp = GenerateOtp();
@@ -310,6 +313,29 @@ namespace EmbeddronicsBackend.Services
             }
         }
 
+        public async Task<bool> LogoutAsync(string refreshToken, string? accessToken = null)
+        {
+            try
+            {
+                // Revoke refresh token
+                await _jwtTokenService.RevokeRefreshTokenAsync(refreshToken);
+                
+                // Blacklist access token if provided
+                if (!string.IsNullOrEmpty(accessToken))
+                {
+                    await _jwtTokenService.BlacklistTokenAsync(accessToken);
+                }
+                
+                _logger.LogInformation("User logged out successfully with token blacklisting");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during logout");
+                return false;
+            }
+        }
+
         public async Task<bool> RevokeAllUserTokensAsync(int userId)
         {
             try
@@ -335,15 +361,75 @@ namespace EmbeddronicsBackend.Services
 
         private string HashPassword(string password)
         {
-            using var sha256 = SHA256.Create();
-            var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password + "EmbeddronicsSalt2024"));
-            return Convert.ToBase64String(hashedBytes);
+            return BCrypt.Net.BCrypt.HashPassword(password, BCrypt.Net.BCrypt.GenerateSalt(12));
         }
 
         private bool VerifyPassword(string password, string hash)
         {
-            var computedHash = HashPassword(password);
-            return computedHash == hash;
+            try
+            {
+                // First try BCrypt verification (new method)
+                if (BCrypt.Net.BCrypt.Verify(password, hash))
+                {
+                    return true;
+                }
+            }
+            catch (Exception)
+            {
+                // If BCrypt fails, it might be a legacy hash, continue to legacy verification
+            }
+
+            // Fallback to legacy SHA256 verification for existing users
+            try
+            {
+                var legacyHash1 = LegacyHashPassword(password, "EmbeddronicsSalt2024");
+                var legacyHash2 = LegacyHashPassword(password, "EmbeddronicsSalt");
+                
+                if (hash == legacyHash1 || hash == legacyHash2)
+                {
+                    _logger.LogInformation("Legacy password verification successful - password should be migrated");
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Legacy password verification failed");
+            }
+
+            return false;
+        }
+
+        private string LegacyHashPassword(string password, string salt)
+        {
+            // Legacy SHA256 hashing method for backward compatibility
+            using var sha256 = System.Security.Cryptography.SHA256.Create();
+            var hashedBytes = sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password + salt));
+            return Convert.ToBase64String(hashedBytes);
+        }
+
+        private async Task MigrateUserPasswordIfNeeded(User user, string plainTextPassword)
+        {
+            try
+            {
+                // Check if current password is a legacy hash
+                var legacyHash1 = LegacyHashPassword(plainTextPassword, "EmbeddronicsSalt2024");
+                var legacyHash2 = LegacyHashPassword(plainTextPassword, "EmbeddronicsSalt");
+
+                if (user.PasswordHash == legacyHash1 || user.PasswordHash == legacyHash2)
+                {
+                    // Migrate to BCrypt
+                    user.PasswordHash = HashPassword(plainTextPassword);
+                    user.UpdatedAt = DateTime.UtcNow;
+                    await _context.SaveChangesAsync();
+                    
+                    _logger.LogInformation("Migrated password to BCrypt for user: {Email}", user.Email);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to migrate password for user: {Email}", user.Email);
+                // Don't fail the login if migration fails
+            }
         }
     }
 }

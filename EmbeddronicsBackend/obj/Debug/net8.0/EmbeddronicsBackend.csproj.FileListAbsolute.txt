@@ -6,6 +6,7 @@ E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\obj\Debug\net8.0\Embeddr
 E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\obj\Debug\net8.0\EmbeddronicsBackend.csproj.CoreCompileInputs.cache
 E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\obj\Debug\net8.0\EmbeddronicsBackend.MvcApplicationPartsAssemblyInfo.cs
 E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\obj\Debug\net8.0\EmbeddronicsBackend.MvcApplicationPartsAssemblyInfo.cache
+E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\obj\Debug\net8.0\EmbeddronicsBackend.sourcelink.json
 E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\bin\Debug\net8.0\appsettings.Development.json
 E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\bin\Debug\net8.0\appsettings.json
 E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\bin\Debug\net8.0\Data\blogposts.json
@@ -26,6 +27,9 @@ E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\bin\Debug\net8.0\Embeddr
 E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\bin\Debug\net8.0\EmbeddronicsBackend.pdb
 E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\bin\Debug\net8.0\Azure.Core.dll
 E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\bin\Debug\net8.0\Azure.Identity.dll
+E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\bin\Debug\net8.0\FluentValidation.dll
+E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\bin\Debug\net8.0\FluentValidation.AspNetCore.dll
+E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\bin\Debug\net8.0\FluentValidation.DependencyInjectionExtensions.dll
 E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\bin\Debug\net8.0\Humanizer.dll
 E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\bin\Debug\net8.0\Microsoft.Bcl.AsyncInterfaces.dll
@@ -175,3 +179,4 @@ E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\obj\Debug\net8.0\refint\
 E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\obj\Debug\net8.0\EmbeddronicsBackend.pdb
 E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\obj\Debug\net8.0\EmbeddronicsBackend.genruntimeconfig.cache
 E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\obj\Debug\net8.0\ref\EmbeddronicsBackend.dll
+E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\bin\Debug\net8.0\BCrypt.Net-Next.dll

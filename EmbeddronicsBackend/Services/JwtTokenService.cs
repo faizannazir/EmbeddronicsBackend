@@ -16,15 +16,18 @@ namespace EmbeddronicsBackend.Services
     {
         private readonly JwtSettings _jwtSettings;
         private readonly EmbeddronicsDbContext _context;
+        private readonly ITokenBlacklistService _blacklistService;
         private readonly ILogger<JwtTokenService> _logger;
 
         public JwtTokenService(
             IOptions<JwtSettings> jwtSettings,
             EmbeddronicsDbContext context,
+            ITokenBlacklistService blacklistService,
             ILogger<JwtTokenService> logger)
         {
             _jwtSettings = jwtSettings.Value;
             _context = context;
+            _blacklistService = blacklistService;
             _logger = logger;
         }
 
@@ -33,7 +36,7 @@ namespace EmbeddronicsBackend.Services
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-            var claims = new[]
+            var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Email, user.Email),
@@ -46,6 +49,20 @@ namespace EmbeddronicsBackend.Services
                     ClaimValueTypes.Integer64)
             };
 
+            // Add role-specific scope claims for authorization policies
+            if (user.Role == "admin")
+            {
+                claims.Add(new Claim("scope", "crm"));
+                claims.Add(new Claim("scope", "admin"));
+                claims.Add(new Claim("scope", "manage_all"));
+            }
+            else if (user.Role == "client")
+            {
+                claims.Add(new Claim("scope", "portal"));
+                claims.Add(new Claim("scope", "client"));
+                claims.Add(new Claim("scope", "view_own"));
+            }
+
             var token = new JwtSecurityToken(
                 issuer: _jwtSettings.Issuer,
                 audience: _jwtSettings.Audience,
@@ -56,8 +73,8 @@ namespace EmbeddronicsBackend.Services
 
             var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
             
-            _logger.LogInformation("Access token generated for user {UserId} ({Email})", 
-                user.Id, user.Email);
+            _logger.LogInformation("Access token generated for user {UserId} ({Email}) with role {Role}", 
+                user.Id, user.Email, user.Role);
             
             return tokenString;
         }
@@ -94,6 +111,17 @@ namespace EmbeddronicsBackend.Services
                 if (validatedToken is JwtSecurityToken jwtToken &&
                     jwtToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
                 {
+                    // Check if token is blacklisted
+                    var jti = principal.FindFirst(JwtRegisteredClaimNames.Jti)?.Value;
+                    if (!string.IsNullOrEmpty(jti) && _blacklistService.IsTokenBlacklistedAsync(jti).Result)
+                    {
+                        return new CustomTokenValidationResult
+                        {
+                            IsValid = false,
+                            ErrorMessage = "Token has been revoked"
+                        };
+                    }
+
                     return new CustomTokenValidationResult
                     {
                         IsValid = true,
@@ -223,6 +251,46 @@ namespace EmbeddronicsBackend.Services
                 await _context.SaveChangesAsync();
                 
                 _logger.LogInformation("All tokens revoked for user {UserId}", userId);
+            }
+        }
+
+        public async Task BlacklistTokenAsync(string token)
+        {
+            var jti = ExtractJtiFromToken(token);
+            if (!string.IsNullOrEmpty(jti))
+            {
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var jwtToken = tokenHandler.ReadJwtToken(token);
+                var expiration = jwtToken.ValidTo;
+                
+                await _blacklistService.BlacklistTokenAsync(jti, expiration);
+                _logger.LogInformation("Token blacklisted with JTI: {Jti}", jti);
+            }
+        }
+
+        public async Task<bool> IsTokenBlacklistedAsync(string token)
+        {
+            var jti = ExtractJtiFromToken(token);
+            if (string.IsNullOrEmpty(jti))
+            {
+                return false;
+            }
+
+            return await _blacklistService.IsTokenBlacklistedAsync(jti);
+        }
+
+        public string? ExtractJtiFromToken(string token)
+        {
+            try
+            {
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var jwtToken = tokenHandler.ReadJwtToken(token);
+                return jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Jti)?.Value;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to extract JTI from token");
+                return null;
             }
         }
     }

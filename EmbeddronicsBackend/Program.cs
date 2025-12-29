@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Serilog;
@@ -7,7 +8,12 @@ using EmbeddronicsBackend.Models;
 using EmbeddronicsBackend.Middleware;
 using Microsoft.EntityFrameworkCore;
 using EmbeddronicsBackend.Data;
+using EmbeddronicsBackend.Data.Repositories;
 using EmbeddronicsBackend.Models.Configuration;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using EmbeddronicsBackend.Validators;
+using EmbeddronicsBackend.Filters;
 
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()
@@ -37,9 +43,24 @@ builder.Services.AddDbContext<EmbeddronicsDbContext>(options =>
 // Add Authentication Services
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ITokenBlacklistService, TokenBlacklistService>();
+
+// Add memory cache for token blacklisting
+builder.Services.AddMemoryCache();
 
 // Add User Registration Service
 builder.Services.AddScoped<IUserRegistrationService, UserRegistrationService>();
+
+// Add Repository Pattern and Unit of Work
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IQuoteRepository, QuoteRepository>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IMessageRepository, MessageRepository>();
+builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
+builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
 
 // Register services as Singletons to maintain the dictionary in memory
 builder.Services.AddSingleton<IDataService<Product>, ProductService>();
@@ -112,14 +133,97 @@ builder.Services.AddAuthentication(options =>
 // Add Authorization
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("AdminOnly", policy => policy.RequireRole("admin"));
-    options.AddPolicy("ClientOnly", policy => policy.RequireRole("client"));
-    options.AddPolicy("AdminOrClient", policy => policy.RequireRole("admin", "client"));
+    // Role-based policies
+    options.AddPolicy("AdminOnly", policy => 
+        policy.RequireRole("admin")
+              .RequireAuthenticatedUser());
+    
+    options.AddPolicy("ClientOnly", policy => 
+        policy.RequireRole("client")
+              .RequireAuthenticatedUser());
+    
+    options.AddPolicy("AdminOrClient", policy => 
+        policy.RequireRole("admin", "client")
+              .RequireAuthenticatedUser());
+    
+    // Admin CRM policies - comprehensive access for admin operations
+    options.AddPolicy("AdminCRM", policy =>
+        policy.RequireRole("admin")
+              .RequireAuthenticatedUser());
+    
+    // Client portal policies - restricted access for client operations
+    options.AddPolicy("ClientPortal", policy =>
+        policy.RequireRole("client")
+              .RequireAuthenticatedUser());
+    
+    // Resource management policies
+    options.AddPolicy("ManageProducts", policy =>
+        policy.RequireRole("admin")
+              .RequireAuthenticatedUser());
+    
+    options.AddPolicy("ManageOrders", policy =>
+        policy.RequireRole("admin")
+              .RequireAuthenticatedUser());
+    
+    options.AddPolicy("ManageQuotes", policy =>
+        policy.RequireRole("admin")
+              .RequireAuthenticatedUser());
+    
+    options.AddPolicy("ManageClients", policy =>
+        policy.RequireRole("admin")
+              .RequireAuthenticatedUser());
+    
+    // Resource-based authorization policies for ownership
+    options.AddPolicy("OrderOwnership", policy => 
+    {
+        policy.Requirements.Add(new EmbeddronicsBackend.Authorization.Requirements.ResourceOwnershipRequirement("Order"));
+        policy.RequireAuthenticatedUser();
+    });
+    
+    options.AddPolicy("QuoteOwnership", policy => 
+    {
+        policy.Requirements.Add(new EmbeddronicsBackend.Authorization.Requirements.ResourceOwnershipRequirement("Quote"));
+        policy.RequireAuthenticatedUser();
+    });
+    
+    options.AddPolicy("MessageOwnership", policy => 
+    {
+        policy.Requirements.Add(new EmbeddronicsBackend.Authorization.Requirements.ResourceOwnershipRequirement("Message"));
+        policy.RequireAuthenticatedUser();
+    });
+    
+    // Public access policy for anonymous endpoints
+    options.AddPolicy("PublicAccess", policy =>
+        policy.RequireAssertion(context => true)); // Always allow
+    
+    // Default fallback policy - require authentication
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
 });
+
+// Register authorization handlers
+builder.Services.AddScoped<IAuthorizationHandler, EmbeddronicsBackend.Authorization.Handlers.ResourceOwnershipHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, EmbeddronicsBackend.Authorization.Handlers.AdminOperationHandler>();
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+// Add FluentValidation
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddFluentValidationClientsideAdapters();
+builder.Services.AddValidatorsFromAssemblyContaining<LoginRequestValidator>();
+
+// Configure FluentValidation to use camelCase property names for error messages
+ValidatorOptions.Global.PropertyNameResolver = (type, memberInfo, expression) =>
+{
+    return memberInfo?.Name?.Substring(0, 1).ToLower() + memberInfo?.Name?.Substring(1);
+};
+
+builder.Services.AddControllers(options =>
+{
+    // Add global validation filter
+    options.Filters.Add<ValidationFilter>();
+});
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
