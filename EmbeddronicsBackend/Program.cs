@@ -3,7 +3,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Serilog;
+using Serilog.Events;
 using EmbeddronicsBackend.Services;
+using EmbeddronicsBackend.Services.Monitoring;
+using EmbeddronicsBackend.Services.HealthChecks;
+using EmbeddronicsBackend.Services.Caching;
 using EmbeddronicsBackend.Models;
 using EmbeddronicsBackend.Middleware;
 using Microsoft.EntityFrameworkCore;
@@ -14,15 +18,26 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using EmbeddronicsBackend.Validators;
 using EmbeddronicsBackend.Filters;
+using EmbeddronicsBackend.Hubs;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
-// Configure Serilog
+// Configure Serilog with structured logging and enrichment
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
-    .WriteTo.Console()
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+    .MinimumLevel.Override("Microsoft.Hosting.Lifetime", LogEventLevel.Information)
+    .MinimumLevel.Override("Microsoft.EntityFrameworkCore", LogEventLevel.Warning)
+    .Enrich.FromLogContext()
+    .Enrich.WithProperty("Application", "EmbeddronicsAPI")
+    .Enrich.WithProperty("MachineName", Environment.MachineName)
+    .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj} {Properties:j}{NewLine}{Exception}")
     .WriteTo.File(
         path: "logs/embeddronics-log-.txt",
         rollingInterval: RollingInterval.Day,
-        retainedFileCountLimit: 30
+        retainedFileCountLimit: 30,
+        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{CorrelationId}] {Message:lj}{NewLine}{Exception}"
     )
     .WriteTo.Seq("http://localhost:5341")
     .CreateLogger();
@@ -32,9 +47,53 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseSerilog();
 
+// Configure Performance Settings
+var performanceSettings = builder.Configuration.GetSection("Performance").Get<PerformanceSettings>() ?? new PerformanceSettings();
+
+// Configure Kestrel server limits for request size and timeouts
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    serverOptions.Limits.MaxRequestBodySize = performanceSettings.RequestLimits.MaxRequestBodySize;
+    serverOptions.Limits.RequestHeadersTimeout = TimeSpan.FromSeconds(performanceSettings.RequestLimits.RequestTimeoutSeconds);
+    serverOptions.Limits.KeepAliveTimeout = TimeSpan.FromMinutes(2);
+    serverOptions.Limits.MaxRequestLineSize = performanceSettings.RequestLimits.MaxUrlLength;
+    serverOptions.Limits.MaxRequestHeadersTotalSize = 32768; // 32KB
+});
+
 // Configure JWT settings
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
+
+// Configure Performance Settings
+builder.Services.Configure<PerformanceSettings>(builder.Configuration.GetSection("Performance"));
+
+// Add Distributed Caching
+if (performanceSettings.Cache.UseRedis)
+{
+    // Use Redis for distributed caching
+    builder.Services.AddStackExchangeRedisCache(options =>
+    {
+        options.Configuration = performanceSettings.Cache.RedisConnectionString;
+        options.InstanceName = performanceSettings.Cache.RedisInstanceName;
+    });
+    builder.Services.AddSingleton<ICacheService, DistributedCacheService>();
+    Log.Information("Redis distributed caching enabled: {ConnectionString}", performanceSettings.Cache.RedisConnectionString);
+}
+else
+{
+    // Use in-memory distributed cache as fallback
+    builder.Services.AddDistributedMemoryCache();
+    builder.Services.AddSingleton<ICacheService, MemoryCacheService>();
+    Log.Information("In-memory caching enabled (Redis disabled)");
+}
+
+// Add Response Caching
+builder.Services.AddResponseCaching(options =>
+{
+    options.MaximumBodySize = 64 * 1024 * 1024; // 64MB max cached response
+    options.SizeLimit = 256 * 1024 * 1024; // 256MB total cache size
+    options.UseCaseSensitivePaths = false;
+});
 
 // Add Entity Framework
 builder.Services.AddDbContext<EmbeddronicsDbContext>(options =>
@@ -44,6 +103,10 @@ builder.Services.AddDbContext<EmbeddronicsDbContext>(options =>
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenBlacklistService, TokenBlacklistService>();
+
+// Add Email Service
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 // Add memory cache for token blacklisting
 builder.Services.AddMemoryCache();
@@ -62,24 +125,70 @@ builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
 builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
 
-// Register services as Singletons to maintain the dictionary in memory
+// Add Business Services
+builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IQuoteService, QuoteService>();
+builder.Services.AddScoped<IQuoteWorkflowService, QuoteWorkflowService>();
+
+// Add Background Services
+builder.Services.AddHostedService<QuoteExpirationService>();
+
+// Add Performance Monitoring
+builder.Services.AddSingleton<IPerformanceMonitorService, PerformanceMonitorService>();
+
+// Add Health Checks
+builder.Services.AddHealthChecks()
+    .AddCheck<DatabaseHealthCheck>("database", tags: new[] { "ready", "db" })
+    .AddCheck<MemoryHealthCheck>("memory", tags: new[] { "live" })
+    .AddCheck<SignalRHealthCheck>("signalr", tags: new[] { "ready" })
+    .AddCheck<ExternalServicesHealthCheck>("external-services", tags: new[] { "ready" })
+    .AddCheck<DiskSpaceHealthCheck>("disk-space", tags: new[] { "live" });
+
+// Add SignalR for real-time chat
+builder.Services.AddSignalR(options =>
+{
+    options.EnableDetailedErrors = builder.Environment.IsDevelopment();
+    options.KeepAliveInterval = TimeSpan.FromSeconds(15);
+    options.ClientTimeoutInterval = TimeSpan.FromSeconds(30);
+    options.MaximumReceiveMessageSize = 102400; // 100KB max message size
+});
+
+// Add Chat Services
+builder.Services.AddScoped<IChatService, ChatService>();
+builder.Services.AddSingleton<IConnectionManagerService, ConnectionManagerService>();
+builder.Services.AddScoped<IChatAttachmentService, ChatAttachmentService>();
+builder.Services.AddScoped<IUserStatusService, UserStatusService>();
+
+// Add Chat Security Services
+builder.Services.AddSingleton<IChatRateLimitService, ChatRateLimitService>();
+builder.Services.AddSingleton<IChatAuthorizationService, ChatAuthorizationService>();
+builder.Services.AddSingleton<ISessionManagementService, SessionManagementService>();
+
+// Register legacy JSON services as Singletons to maintain the dictionary in memory
 builder.Services.AddSingleton<IDataService<Product>, ProductService>();
 builder.Services.AddSingleton<IDataService<Service>, ServiceService>();
 builder.Services.AddSingleton<IDataService<Project>, ProjectService>();
 builder.Services.AddSingleton<IDataService<BlogPost>, BlogService>();
-builder.Services.AddSingleton<IDataService<Order>, OrderService>();
+// Note: OrderService and QuoteService are now using the new interfaces instead of IDataService
 builder.Services.AddSingleton<IDataService<Client>, ClientService>();
 builder.Services.AddSingleton<IDataService<Lead>, LeadService>();
 builder.Services.AddSingleton<IDataService<Review>, ReviewService>();
 builder.Services.AddSingleton<IDataService<FinancialRecord>, FinancialService>();
-builder.Services.AddSingleton<IDataService<Quote>, QuoteService>();
 
 // Add CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp",
         policy => policy
-            .WithOrigins("http://localhost:5173", "http://localhost:3000")
+            .WithOrigins("http://localhost:5173", "http://localhost:3000", "http://localhost:5001", "https://localhost:7001")
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials());
+    
+    // Add a more permissive policy for development testing
+    options.AddPolicy("AllowDevelopment",
+        policy => policy
+            .SetIsOriginAllowed(origin => new Uri(origin).Host == "localhost")
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials());
@@ -125,6 +234,19 @@ builder.Services.AddAuthentication(options =>
         OnChallenge = context =>
         {
             Log.Warning("JWT Challenge triggered: {Error}", context.Error);
+            return Task.CompletedTask;
+        },
+        // Handle SignalR token from query string
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+            
+            // If the request is for the chat hub, read the token from the query string
+            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs/chat"))
+            {
+                context.Token = accessToken;
+            }
             return Task.CompletedTask;
         }
     };
@@ -243,11 +365,12 @@ builder.Services.AddSwaggerGen(c =>
     // Add JWT Authentication
     c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
     {
-        Description = "JWT Authorization header using the Bearer scheme. Enter 'Bearer' [space] and then your token in the text input below.\n\nExample: \"Bearer eyJhbGciOiJIUzI1NiIs...\"",
+        Description = "JWT Authorization header using the Bearer scheme. Enter your token below (without 'Bearer ' prefix).\n\nExample: \"eyJhbGciOiJIUzI1NiIs...\"",
         Name = "Authorization",
         In = Microsoft.OpenApi.Models.ParameterLocation.Header,
-        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
-        Scheme = "Bearer"
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT"
     });
 
     c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
@@ -277,7 +400,49 @@ using (var scope = app.Services.CreateScope())
 
 // Configure the HTTP request pipeline.
 
-// Add global exception handling middleware first
+// Add security headers early in the pipeline
+app.UseSecurityHeaders(options =>
+{
+    options.EnableHsts = performanceSettings.Security.EnableHsts;
+    options.HstsMaxAgeSeconds = performanceSettings.Security.HstsMaxAgeSeconds;
+    options.EnableCrossOriginPolicies = performanceSettings.Security.EnableCrossOriginPolicies;
+    options.XFrameOptions = performanceSettings.Security.XFrameOptions;
+    if (!string.IsNullOrEmpty(performanceSettings.Security.ContentSecurityPolicy))
+        options.ContentSecurityPolicy = performanceSettings.Security.ContentSecurityPolicy;
+});
+
+// Add correlation ID middleware for request tracking
+app.UseCorrelationId();
+
+// Add rate limiting middleware
+if (performanceSettings.RateLimit.Enabled)
+{
+    app.UseRateLimiting(options =>
+    {
+        options.Enabled = performanceSettings.RateLimit.Enabled;
+        options.PermitLimit = performanceSettings.RateLimit.PermitLimit;
+        options.WindowSeconds = performanceSettings.RateLimit.WindowSeconds;
+        options.AuthenticatedPermitLimit = performanceSettings.RateLimit.AuthenticatedPermitLimit;
+        options.AnonymousPermitLimit = performanceSettings.RateLimit.AnonymousPermitLimit;
+        options.ExemptEndpoints = performanceSettings.RateLimit.ExemptEndpoints;
+        
+        // Configure endpoint-specific limits
+        foreach (var limit in performanceSettings.RateLimit.EndpointLimits)
+        {
+            options.EndpointLimits[limit.Key] = new EndpointRateLimit
+            {
+                PermitLimit = limit.Value.PermitLimit,
+                WindowSeconds = limit.Value.WindowSeconds
+            };
+        }
+    });
+    Log.Information("Rate limiting enabled");
+}
+
+// Add request metrics middleware for performance monitoring
+app.UseRequestMetrics();
+
+// Add global exception handling middleware
 app.UseExceptionHandling();
 
 if (app.Environment.IsDevelopment())
@@ -292,7 +457,20 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors("AllowReactApp");
+// Add response caching middleware
+app.UseResponseCaching();
+
+// Add custom response caching for fine-grained control
+app.UseCustomResponseCaching();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseCors("AllowDevelopment");
+}
+else
+{
+    app.UseCors("AllowReactApp");
+}
 
 // Add custom authentication middleware for logging and monitoring
 app.UseCustomAuthentication();
@@ -300,6 +478,31 @@ app.UseCustomAuthentication();
 app.UseAuthentication();
 app.UseAuthorization();
 
+// Map health check endpoints
+app.MapHealthChecks("/health", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+{
+    ResponseWriter = async (context, report) =>
+    {
+        context.Response.ContentType = "application/json";
+        var result = System.Text.Json.JsonSerializer.Serialize(new
+        {
+            status = report.Status.ToString(),
+            checks = report.Entries.Select(e => new
+            {
+                name = e.Key,
+                status = e.Value.Status.ToString(),
+                description = e.Value.Description
+            })
+        });
+        await context.Response.WriteAsync(result);
+    }
+});
+
 app.MapControllers();
+
+// Map SignalR hub for real-time chat
+app.MapHub<ChatHub>("/hubs/chat");
+
+Log.Information("Embeddronics API started successfully");
 
 app.Run();

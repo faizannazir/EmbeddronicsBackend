@@ -22,9 +22,9 @@ namespace EmbeddronicsBackend.Services
         public BlogService() : base("blogposts.json") { }
     }
 
-    public class OrderService : JsonDataService<Order>
+    public class LegacyOrderService : JsonDataService<Order>
     {
-        public OrderService() : base("orders.json") { }
+        public LegacyOrderService() : base("orders.json") { }
     }
 
     public class ClientService : JsonDataService<Client>
@@ -47,8 +47,8 @@ namespace EmbeddronicsBackend.Services
         public FinancialService() : base("financials.json") { }
     }
 
-    public class QuoteService : JsonDataService<Quote>
+    public class LegacyQuoteService : JsonDataService<Quote>
     {
-        public QuoteService() : base("quotes.json") { }
+        public LegacyQuoteService() : base("quotes.json") { }
     }
 }

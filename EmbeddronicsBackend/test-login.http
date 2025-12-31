@@ -1,0 +1,30 @@
+### Test Login with Admin Credentials
+POST https://localhost:7001/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "info@embeddronics.com",
+  "password": "Admin@123"
+}
+
+### Test Login with Another Admin
+POST https://localhost:7001/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "faizannazir289@gmail.com",
+  "password": "Admin@123"
+}
+
+### Test Invalid Login
+POST https://localhost:7001/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "invalid@example.com",
+  "password": "wrongpassword"
+}
+
+### Test Get Current User (requires Bearer token from login response)
+GET https://localhost:7001/api/auth/me
+Authorization: Bearer YOUR_TOKEN_HERE

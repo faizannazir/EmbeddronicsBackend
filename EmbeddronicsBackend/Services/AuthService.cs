@@ -14,10 +14,6 @@ namespace EmbeddronicsBackend.Services
         private readonly EmbeddronicsDbContext _context;
         private readonly IJwtTokenService _jwtTokenService;
         private readonly ILogger<AuthService> _logger;
-        
-        // In-memory OTP store for demo purposes
-        // In production, use Redis or database with expiration
-        private static readonly Dictionary<string, (string Otp, DateTime Expiry)> _otpStore = new();
 
         public AuthService(
             EmbeddronicsDbContext context,
@@ -72,91 +68,14 @@ namespace EmbeddronicsBackend.Services
                 // Check if user is using legacy password and migrate to BCrypt
                 await MigrateUserPasswordIfNeeded(user, request.Password);
 
-                // Generate and store OTP
-                var otp = GenerateOtp();
-                _otpStore[request.Email] = (otp, DateTime.UtcNow.AddMinutes(5)); // 5-minute expiry
-
-                _logger.LogInformation("OTP generated for user: {Email}, OTP: {OTP}", request.Email, otp);
-                
-                // In production, send OTP via email/SMS service
-                return new AuthResult
-                {
-                    Success = true,
-                    RequiresOtp = true,
-                    Message = "OTP sent to your registered email address"
-                };
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error during login for email: {Email}", request.Email);
-                return new AuthResult
-                {
-                    Success = false,
-                    Message = "An error occurred during login"
-                };
-            }
-        }
-
-        public async Task<AuthResult> VerifyOtpAsync(OtpVerificationRequest request)
-        {
-            try
-            {
-                _logger.LogInformation("OTP verification attempt for email: {Email}", request.Email);
-
-                if (!_otpStore.TryGetValue(request.Email, out var otpData))
-                {
-                    _logger.LogWarning("OTP verification failed - no OTP found: {Email}", request.Email);
-                    return new AuthResult
-                    {
-                        Success = false,
-                        Message = "Invalid or expired OTP"
-                    };
-                }
-
-                if (DateTime.UtcNow > otpData.Expiry)
-                {
-                    _otpStore.Remove(request.Email);
-                    _logger.LogWarning("OTP verification failed - expired: {Email}", request.Email);
-                    return new AuthResult
-                    {
-                        Success = false,
-                        Message = "OTP has expired"
-                    };
-                }
-
-                if (otpData.Otp != request.Otp)
-                {
-                    _logger.LogWarning("OTP verification failed - invalid OTP: {Email}", request.Email);
-                    return new AuthResult
-                    {
-                        Success = false,
-                        Message = "Invalid OTP"
-                    };
-                }
-
-                // Remove OTP after successful verification
-                _otpStore.Remove(request.Email);
-
-                var user = await _context.Users
-                    .FirstOrDefaultAsync(u => u.Email == request.Email);
-
-                if (user == null)
-                {
-                    return new AuthResult
-                    {
-                        Success = false,
-                        Message = "User not found"
-                    };
-                }
-
-                // Generate tokens
+                // Generate tokens directly (no OTP required)
                 var accessToken = _jwtTokenService.GenerateAccessToken(user);
                 var refreshToken = _jwtTokenService.GenerateRefreshToken();
 
                 // Save refresh token
                 await _jwtTokenService.SaveRefreshTokenAsync(user.Id, refreshToken);
 
-                _logger.LogInformation("OTP verified and tokens issued for user: {Email}", request.Email);
+                _logger.LogInformation("Login successful for user: {Email}", request.Email);
 
                 return new AuthResult
                 {
@@ -180,13 +99,24 @@ namespace EmbeddronicsBackend.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error during OTP verification for email: {Email}", request.Email);
+                _logger.LogError(ex, "Error during login for email: {Email}", request.Email);
                 return new AuthResult
                 {
                     Success = false,
-                    Message = "An error occurred during OTP verification"
+                    Message = "An error occurred during login"
                 };
             }
+        }
+
+        public async Task<AuthResult> VerifyOtpAsync(OtpVerificationRequest request)
+        {
+            // OTP functionality has been removed - return error
+            _logger.LogWarning("OTP verification called but OTP functionality has been removed");
+            return new AuthResult
+            {
+                Success = false,
+                Message = "OTP verification is no longer supported. Please use regular login."
+            };
         }
 
         public async Task<AuthResult> RefreshTokenAsync(string refreshToken)
@@ -349,14 +279,6 @@ namespace EmbeddronicsBackend.Services
                 _logger.LogError(ex, "Error revoking tokens for user: {UserId}", userId);
                 return false;
             }
-        }
-
-        private string GenerateOtp()
-        {
-            using var rng = RandomNumberGenerator.Create();
-            var bytes = new byte[4];
-            rng.GetBytes(bytes);
-            return (BitConverter.ToUInt32(bytes, 0) % 1000000).ToString("D6");
         }
 
         private string HashPassword(string password)

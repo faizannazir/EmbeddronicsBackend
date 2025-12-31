@@ -45,31 +45,6 @@ namespace EmbeddronicsBackend.Controllers
         }
 
         /// <summary>
-        /// Verify OTP and complete authentication
-        /// </summary>
-        [HttpPost("verify-otp")]
-        [AllowAnonymous] // Allow anonymous access for OTP verification
-        public async Task<ActionResult<ApiResponse<AuthResult>>> VerifyOtp([FromBody] OtpVerificationRequest request)
-        {
-            try
-            {
-                var result = await _authService.VerifyOtpAsync(request);
-                
-                if (result.Success)
-                {
-                    return Success(result, result.Message);
-                }
-                
-                return BadRequest<AuthResult>(result.Message);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error during OTP verification for email: {Email}", request.Email);
-                return InternalServerError<AuthResult>("An internal error occurred");
-            }
-        }
-
-        /// <summary>
         /// Refresh access token using refresh token
         /// </summary>
         [HttpPost("refresh-token")]

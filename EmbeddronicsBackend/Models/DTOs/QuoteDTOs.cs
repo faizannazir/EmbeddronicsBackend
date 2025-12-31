@@ -62,4 +62,35 @@ namespace EmbeddronicsBackend.Models.DTOs
         public bool Accept { get; set; }
         public string? Notes { get; set; }
     }
+
+    public class QuoteWorkflowStatusDto
+    {
+        public int QuoteId { get; set; }
+        public string CurrentStatus { get; set; } = string.Empty;
+        public string WorkflowStage { get; set; } = string.Empty;
+        public bool CanModify { get; set; }
+        public bool CanApprove { get; set; }
+        public bool CanReject { get; set; }
+        public bool CanAccept { get; set; }
+        public List<string> AvailableActions { get; set; } = new();
+        public DateTime? LastStatusChange { get; set; }
+        public string? LastActionBy { get; set; }
+        public string? Notes { get; set; }
+    }
+
+    public class QuoteRevisionRequest
+    {
+        public int QuoteId { get; set; }
+        public string RevisionNotes { get; set; } = string.Empty;
+        public List<CreateQuoteItemRequest>? UpdatedItems { get; set; }
+        public decimal? NewAmount { get; set; }
+        public DateTime? NewValidUntil { get; set; }
+    }
+
+    public class QuoteApprovalRequest
+    {
+        public bool Approve { get; set; }
+        public string? Notes { get; set; }
+        public string? RejectionReason { get; set; }
+    }
 }

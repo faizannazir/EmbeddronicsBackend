@@ -18,6 +18,11 @@ public class EmbeddronicsDbContext : DbContext
     public DbSet<Product> Products { get; set; }
     public DbSet<Document> Documents { get; set; }
     public DbSet<Invoice> Invoices { get; set; }
+    public DbSet<ChatMessage> ChatMessages { get; set; }
+    public DbSet<UserConnection> UserConnections { get; set; }
+    public DbSet<ChatAttachment> ChatAttachments { get; set; }
+    public DbSet<UserActivityLog> UserActivityLogs { get; set; }
+    public DbSet<MessageReadReceipt> MessageReadReceipts { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -183,6 +188,155 @@ public class EmbeddronicsDbContext : DbContext
 
             // Ensure unique invoice numbers
             entity.HasIndex(e => e.InvoiceNumber).IsUnique();
+        });
+
+        // Configure ChatMessage entity
+        modelBuilder.Entity<ChatMessage>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.ChatRoom).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Content).IsRequired().HasMaxLength(4000);
+            entity.Property(e => e.MessageType).IsRequired().HasMaxLength(50).HasDefaultValue("text");
+            entity.Property(e => e.Priority).HasMaxLength(20).HasDefaultValue("normal");
+            entity.Property(e => e.Attachments).HasColumnType("nvarchar(max)");
+            entity.Property(e => e.IsRead).HasDefaultValue(false);
+            entity.Property(e => e.IsEdited).HasDefaultValue(false);
+            entity.Property(e => e.IsDeleted).HasDefaultValue(false);
+            entity.Property(e => e.IsPinned).HasDefaultValue(false);
+            entity.Property(e => e.ReplyCount).HasDefaultValue(0);
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+
+            // Configure relationships
+            entity.HasOne(e => e.Sender)
+                  .WithMany()
+                  .HasForeignKey(e => e.SenderId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.Recipient)
+                  .WithMany()
+                  .HasForeignKey(e => e.RecipientId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.Order)
+                  .WithMany()
+                  .HasForeignKey(e => e.OrderId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.ParentMessage)
+                  .WithMany(p => p.Replies)
+                  .HasForeignKey(e => e.ParentMessageId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            // Indexes for common queries
+            entity.HasIndex(e => e.ChatRoom);
+            entity.HasIndex(e => e.SenderId);
+            entity.HasIndex(e => e.CreatedAt);
+            entity.HasIndex(e => e.ParentMessageId);
+            entity.HasIndex(e => e.ConversationId);
+            entity.HasIndex(e => new { e.ChatRoom, e.CreatedAt });
+            entity.HasIndex(e => new { e.ChatRoom, e.IsPinned });
+        });
+
+        // Configure ChatAttachment entity
+        modelBuilder.Entity<ChatAttachment>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.FileName).IsRequired().HasMaxLength(255);
+            entity.Property(e => e.StoredFileName).IsRequired().HasMaxLength(255);
+            entity.Property(e => e.FilePath).IsRequired().HasMaxLength(500);
+            entity.Property(e => e.ContentType).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.FileExtension).HasMaxLength(20);
+            entity.Property(e => e.ThumbnailPath).HasMaxLength(500);
+            entity.Property(e => e.FileCategory).HasMaxLength(50).HasDefaultValue("other");
+            entity.Property(e => e.FileHash).HasMaxLength(128);
+            entity.Property(e => e.IsScanned).HasDefaultValue(false);
+            entity.Property(e => e.IsSafe).HasDefaultValue(true);
+            entity.Property(e => e.IsDeleted).HasDefaultValue(false);
+            entity.Property(e => e.DownloadCount).HasDefaultValue(0);
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+
+            // Configure relationships
+            entity.HasOne(e => e.Message)
+                  .WithMany(m => m.ChatAttachments)
+                  .HasForeignKey(e => e.MessageId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.UploadedBy)
+                  .WithMany()
+                  .HasForeignKey(e => e.UploadedById)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            // Indexes
+            entity.HasIndex(e => e.MessageId);
+            entity.HasIndex(e => e.UploadedById);
+        });
+
+        // Configure UserActivityLog entity
+        modelBuilder.Entity<UserActivityLog>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.ActivityType).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.ActivityDetails).HasColumnType("nvarchar(max)");
+            entity.Property(e => e.ChatRoom).HasMaxLength(100);
+            entity.Property(e => e.IpAddress).HasMaxLength(50);
+            entity.Property(e => e.UserAgent).HasMaxLength(500);
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+
+            // Configure relationships
+            entity.HasOne(e => e.User)
+                  .WithMany()
+                  .HasForeignKey(e => e.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            // Indexes
+            entity.HasIndex(e => e.UserId);
+            entity.HasIndex(e => e.ActivityType);
+            entity.HasIndex(e => e.CreatedAt);
+            entity.HasIndex(e => new { e.UserId, e.CreatedAt });
+        });
+
+        // Configure MessageReadReceipt entity
+        modelBuilder.Entity<MessageReadReceipt>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.ReadAt).HasDefaultValueSql("GETUTCDATE()");
+
+            // Configure relationships
+            entity.HasOne(e => e.Message)
+                  .WithMany()
+                  .HasForeignKey(e => e.MessageId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.User)
+                  .WithMany()
+                  .HasForeignKey(e => e.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            // Unique constraint for message-user combination
+            entity.HasIndex(e => new { e.MessageId, e.UserId }).IsUnique();
+        });
+
+        // Configure UserConnection entity
+        modelBuilder.Entity<UserConnection>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.ConnectionId).IsRequired().HasMaxLength(255);
+            entity.Property(e => e.UserAgent).HasMaxLength(500);
+            entity.Property(e => e.IpAddress).HasMaxLength(50);
+            entity.Property(e => e.IsConnected).HasDefaultValue(true);
+            entity.Property(e => e.ConnectedAt).HasDefaultValueSql("GETUTCDATE()");
+            entity.Property(e => e.LastActivityAt).HasDefaultValueSql("GETUTCDATE()");
+
+            // Configure relationships
+            entity.HasOne(e => e.User)
+                  .WithMany()
+                  .HasForeignKey(e => e.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            // Indexes
+            entity.HasIndex(e => e.UserId);
+            entity.HasIndex(e => e.ConnectionId);
+            entity.HasIndex(e => e.IsConnected);
         });
     }
 
