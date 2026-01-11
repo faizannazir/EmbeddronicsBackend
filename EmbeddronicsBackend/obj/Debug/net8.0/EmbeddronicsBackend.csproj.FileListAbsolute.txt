@@ -35,6 +35,7 @@ E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\bin\Debug\net8.0\Microso
 E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Design.dll
 E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Relational.dll
 E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.SqlServer.dll
+E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\bin\Debug\net8.0\Microsoft.Extensions.Caching.StackExchangeRedis.dll
 E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\bin\Debug\net8.0\Microsoft.Extensions.Configuration.dll
 E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\bin\Debug\net8.0\Microsoft.Extensions.Configuration.Abstractions.dll
 E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\bin\Debug\net8.0\Microsoft.Extensions.Configuration.Binder.dll
@@ -60,6 +61,7 @@ E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\bin\Debug\net8.0\Microso
 E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\bin\Debug\net8.0\Microsoft.SqlServer.Server.dll
 E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\bin\Debug\net8.0\Microsoft.Win32.SystemEvents.dll
 E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\bin\Debug\net8.0\Mono.TextTemplating.dll
+E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\bin\Debug\net8.0\Pipelines.Sockets.Unofficial.dll
 E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\bin\Debug\net8.0\Serilog.dll
 E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\bin\Debug\net8.0\Serilog.AspNetCore.dll
 E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\bin\Debug\net8.0\Serilog.Extensions.Hosting.dll
@@ -70,6 +72,7 @@ E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\bin\Debug\net8.0\Serilog
 E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\bin\Debug\net8.0\Serilog.Sinks.Debug.dll
 E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\bin\Debug\net8.0\Serilog.Sinks.File.dll
 E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\bin\Debug\net8.0\Serilog.Sinks.Seq.dll
+E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\bin\Debug\net8.0\StackExchange.Redis.dll
 E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\bin\Debug\net8.0\Swashbuckle.AspNetCore.Swagger.dll
 E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerGen.dll
 E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerUI.dll
@@ -180,6 +183,3 @@ E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\obj\Debug\net8.0\refint\
 E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\obj\Debug\net8.0\EmbeddronicsBackend.pdb
 E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\obj\Debug\net8.0\EmbeddronicsBackend.genruntimeconfig.cache
 E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\obj\Debug\net8.0\ref\EmbeddronicsBackend.dll
-E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\bin\Debug\net8.0\Microsoft.Extensions.Caching.StackExchangeRedis.dll
-E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\bin\Debug\net8.0\Pipelines.Sockets.Unofficial.dll
-E:\Embeddronics\EmbeddronicsBackend\EmbeddronicsBackend\bin\Debug\net8.0\StackExchange.Redis.dll

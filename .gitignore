@@ -1,0 +1,95 @@
+# .gitignore for .NET / Visual Studio projects
+# See https://github.com/github/gitignore/blob/main/VisualStudio.gitignore and https://github.com/github/gitignore/blob/main/Global/Windows.gitignore
+
+# Build results
+bin/
+obj/
+artifacts/
+TestResults/
+
+# Publish outputs
+publish/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider
+.idea/
+
+# Resharper
+_ReSharper*/
+*.DotSettings.user
+
+# NuGet
+*.nupkg
+packages/
+**/packages/
+
+# NuGet v3
+.project.lock.json
+project.lock.json
+
+# Visual Studio profiler
+*.psess
+*.vsp
+*.vspx
+
+# Visual Studio test results
+*.trx
+
+# Coverage results
+*.coverage
+coverage*.xml
+coverage*.json
+coverage*.info
+
+# DotCover
+*.dotCover
+
+# SQL Server files
+*.mdf
+*.ldf
+
+# Local environment / secrets
+secrets.json
+local.settings.json
+.env
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Ignore JetBrains Rider caches
+.idea/
+
+# Misc
+*.log
+*.vspscc
+*.vssscc
+
+# Log folders
+logs/
+
+# Ignore generated package directories from dotnet restore
+**/project.lock.json
+**/artifacts/**
+
+# Keep user-specific files out of repo
+*.rsuser
+*.suo
+*.user
+*.userosscache
+
+# Ignore any build output folders that might be present
+**/bin/
+**/obj/
+
+# If you want to ignore appsettings for local development, uncomment below
+# appsettings.*.json

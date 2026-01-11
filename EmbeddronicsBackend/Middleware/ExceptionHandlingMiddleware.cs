@@ -46,6 +46,12 @@ namespace EmbeddronicsBackend.Middleware
 
         private async Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
+            if (context.Response.HasStarted)
+            {
+                Log.Warning("Response has already started; cannot write error response for {RequestId}", context.TraceIdentifier);
+                return;
+            }
+
             context.Response.ContentType = "application/json";
             
             var traceId = context.TraceIdentifier;

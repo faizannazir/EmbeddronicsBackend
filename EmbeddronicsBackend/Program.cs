@@ -414,6 +414,9 @@ app.UseSecurityHeaders(options =>
 // Add correlation ID middleware for request tracking
 app.UseCorrelationId();
 
+// Add response start logging to capture the first writer and stack trace when the response begins
+app.UseResponseStartLogging();
+
 // Add rate limiting middleware
 if (performanceSettings.RateLimit.Enabled)
 {

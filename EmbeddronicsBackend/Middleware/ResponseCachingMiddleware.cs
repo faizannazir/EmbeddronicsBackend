@@ -37,11 +37,15 @@ public class ResponseCachingMiddleware
         await _next(context);
 
         // Only add cache headers to successful responses that don't already have them
-        if (context.Response.StatusCode >= 200 && context.Response.StatusCode < 300 &&
+        if (!context.Response.HasStarted && context.Response.StatusCode >= 200 && context.Response.StatusCode < 300 &&
             !context.Response.Headers.ContainsKey("Cache-Control"))
         {
             // Default public cache for anonymous GET requests
             context.Response.Headers["Cache-Control"] = "public, max-age=300";
+        }
+        else if (context.Response.HasStarted)
+        {
+            _logger.LogWarning("Response has already started; skipping cache header injection for {Path}", context.Request.Path);
         }
     }
 }

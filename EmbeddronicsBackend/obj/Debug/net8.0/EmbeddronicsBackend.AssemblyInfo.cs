@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("EmbeddronicsBackend")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4837663375d43f94419cf0352e5786d8d0442f4d")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2ea874dcb65ba6be4a3391b6090f420df54e8088")]
 [assembly: System.Reflection.AssemblyProductAttribute("EmbeddronicsBackend")]
 [assembly: System.Reflection.AssemblyTitleAttribute("EmbeddronicsBackend")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
