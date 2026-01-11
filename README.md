@@ -88,8 +88,10 @@ ASP.NET Core Web API backend for Embeddronics React frontend with authentication
 
 ## Default Credentials
 - **Username**: `admin`
-- **Password**: `adminpass`
+- **Password**: Provided via `ADMIN_DEFAULT_PASSWORD` environment variable (or generated in Development). Do NOT commit default passwords to source control.
 - **Role**: admin
+
+Note: For production, set `JWT_SECRET` (min 32 chars) and `ADMIN_DEFAULT_PASSWORD` before starting the application.
 
 ## Logging
 Serilog is configured to log to:
@@ -133,8 +135,15 @@ All user actions are logged with structured logging for monitoring and troublesh
 
 ## Running the Application
 
+Before starting in Production, make sure to set the following environment variables:
+
+- `JWT_SECRET` (required in Production, minimum 32 characters)
+- `ADMIN_DEFAULT_PASSWORD` (optional; used when seeding admin accounts)
+- `ADMIN_ROTATE_PASSWORD` (optional; if set, will rotate all admin passwords to this value on startup)
+
 ```bash
 cd EmbeddronicsBackend/EmbeddronicsBackend
+# For development you can set ADMIN_DEFAULT_PASSWORD or let the app generate a password
 dotnet run
 ```
 
@@ -155,7 +164,7 @@ React frontend is allowed from:
 const loginResponse = await fetch('http://localhost:5XXX/api/auth/login', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ username: 'admin', password: 'adminpass' })
+  body: JSON.stringify({ username: 'admin', password: process.env.ADMIN_DEFAULT_PASSWORD || '<your-admin-password>' })
 });
 
 // 2. Verify OTP (check console for OTP)

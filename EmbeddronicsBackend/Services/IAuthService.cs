@@ -14,5 +14,10 @@ namespace EmbeddronicsBackend.Services
         Task<bool> LogoutAsync(string refreshToken);
         Task<bool> LogoutAsync(string refreshToken, string? accessToken = null);
         Task<bool> RevokeAllUserTokensAsync(int userId);
+
+        /// <summary>
+        /// Change the password for the specified user (used for "change own password" flow)
+        /// </summary>
+        Task<bool> ChangeOwnPasswordAsync(int userId, string currentPassword, string newPassword);
     }
 }

@@ -417,15 +417,17 @@ public class ChatController : ControllerBase
     /// Upload a file attachment
     /// </summary>
     [HttpPost("attachment/upload")]
+    [Consumes("multipart/form-data")]
     [RequestSizeLimit(52428800)] // 50MB limit
-    public async Task<ActionResult<FileUploadResponseDto>> UploadAttachment(
-        [FromForm] IFormFile file,
-        [FromForm] string chatRoom,
-        [FromForm] int? messageId = null)
+    public async Task<ActionResult<FileUploadResponseDto>> UploadAttachment([FromForm] UploadAttachmentRequestDto request)
     {
         var userId = GetUserId();
         if (!userId.HasValue)
             return Unauthorized();
+
+        var chatRoom = request.ChatRoom;
+        var file = request.File;
+        var messageId = request.MessageId;
 
         // Validate access
         if (!await _chatService.CanAccessChatRoomAsync(userId.Value, chatRoom))
@@ -455,15 +457,17 @@ public class ChatController : ControllerBase
     /// Upload multiple file attachments
     /// </summary>
     [HttpPost("attachment/upload-multiple")]
+    [Consumes("multipart/form-data")]
     [RequestSizeLimit(157286400)] // 150MB total limit for multiple files
-    public async Task<ActionResult<List<FileUploadResponseDto>>> UploadMultipleAttachments(
-        [FromForm] List<IFormFile> files,
-        [FromForm] string chatRoom,
-        [FromForm] int? messageId = null)
+    public async Task<ActionResult<List<FileUploadResponseDto>>> UploadMultipleAttachments([FromForm] UploadMultipleAttachmentsRequestDto request)
     {
         var userId = GetUserId();
         if (!userId.HasValue)
             return Unauthorized();
+
+        var files = request.Files;
+        var chatRoom = request.ChatRoom;
+        var messageId = request.MessageId;
 
         // Validate access
         if (!await _chatService.CanAccessChatRoomAsync(userId.Value, chatRoom))

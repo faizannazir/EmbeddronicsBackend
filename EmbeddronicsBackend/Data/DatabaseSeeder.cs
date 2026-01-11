@@ -14,6 +14,21 @@ public static class DatabaseSeeder
         // Check if we need to migrate existing admin users from SHA256 to BCrypt
         await MigrateExistingAdminPasswordsAsync(context);
 
+        // Optional: rotate existing admin passwords if ADMIN_ROTATE_PASSWORD env var is set
+        var rotatePassword = Environment.GetEnvironmentVariable("ADMIN_ROTATE_PASSWORD");
+        if (!string.IsNullOrEmpty(rotatePassword))
+        {
+            var allAdmins = await context.Users.Where(u => u.Role == "admin").ToListAsync();
+            foreach (var a in allAdmins)
+            {
+                a.PasswordHash = HashPassword(rotatePassword);
+                a.UpdatedAt = DateTime.UtcNow;
+                Console.WriteLine($"Rotated password for admin: {a.Email}");
+            }
+            await context.SaveChangesAsync();
+            Console.WriteLine("Admin password rotation completed from ADMIN_ROTATE_PASSWORD env var.");
+        }
+
         // Check if admin users already exist
         if (await context.Users.AnyAsync(u => u.Role == "admin"))
         {
@@ -29,6 +44,23 @@ public static class DatabaseSeeder
             "nomimalik15@gmail.com"
         };
 
+        // Determine admin default password from env var or generate one in Development
+        var adminDefaultPassword = Environment.GetEnvironmentVariable("ADMIN_DEFAULT_PASSWORD");
+        if (string.IsNullOrEmpty(adminDefaultPassword))
+        {
+            var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            if (string.Equals(env, "Development", StringComparison.OrdinalIgnoreCase) || string.Equals(env, "Local", StringComparison.OrdinalIgnoreCase))
+            {
+                adminDefaultPassword = GenerateSecurePassword();
+                Console.WriteLine($"[Seed] Generated admin default password (Development): {adminDefaultPassword}");
+            }
+            else
+            {
+                Console.WriteLine("[Seed] ADMIN_DEFAULT_PASSWORD not set; skipping admin seeding in non-development environment.");
+                return;
+            }
+        }
+
         var adminUsers = new List<User>();
 
         foreach (var email in adminEmails)
@@ -37,7 +69,7 @@ public static class DatabaseSeeder
             {
                 Email = email,
                 Name = GetNameFromEmail(email),
-                PasswordHash = HashPassword("Admin@123"), // Default password for admin accounts
+                PasswordHash = HashPassword(adminDefaultPassword), // Default password for admin accounts (provided via ADMIN_DEFAULT_PASSWORD or generated in Dev)
                 Role = "admin",
                 Status = "active",
                 Company = "Embeddronics",
@@ -110,5 +142,22 @@ public static class DatabaseSeeder
         using var sha256 = System.Security.Cryptography.SHA256.Create();
         var hashedBytes = sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password + salt));
         return Convert.ToBase64String(hashedBytes);
+    }
+
+    private static string GenerateSecurePassword(int length = 16)
+    {
+        // Generate a cryptographically secure password using base64 and append required character classes
+        var bytes = new byte[32];
+        using var rng = System.Security.Cryptography.RandomNumberGenerator.Create();
+        rng.GetBytes(bytes);
+        var candidate = Convert.ToBase64String(bytes).Replace("=", "");
+        if (candidate.Length < length) length = candidate.Length;
+        var pwd = candidate.Substring(0, length - 4); // reserve 4 chars for complexity
+        // Ensure complexity: add one lowercase, one uppercase, one digit, one special
+        pwd += "a"; // lowercase
+        pwd += "A"; // uppercase
+        pwd += "1"; // digit
+        pwd += "!"; // special
+        return pwd;
     }
 }

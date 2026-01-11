@@ -62,7 +62,33 @@ builder.WebHost.ConfigureKestrel(serverOptions =>
 
 // Configure JWT settings
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
-var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
+var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>() ?? new JwtSettings();
+
+// Prefer environment-provided secret for production safety. Try common env var names.
+var envSecret = Environment.GetEnvironmentVariable("JWT_SECRET")
+    ?? Environment.GetEnvironmentVariable("JwtSettings__SecretKey")
+    ?? Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
+if (!string.IsNullOrEmpty(envSecret))
+{
+    jwtSettings.SecretKey = envSecret;
+}
+
+// Validate secret strength in production
+if (builder.Environment.IsProduction())
+{
+    if (string.IsNullOrEmpty(jwtSettings.SecretKey) || jwtSettings.SecretKey.Length < 32)
+    {
+        Log.Fatal("JWT secret is not configured or is too weak. Set a strong secret via environment variable 'JWT_SECRET' (min 32 chars) before starting in Production.");
+        throw new Exception("Invalid JWT secret configuration for Production environment");
+    }
+}
+else
+{
+    if (string.IsNullOrEmpty(jwtSettings.SecretKey) || jwtSettings.SecretKey.Length < 32)
+    {
+        Log.Warning("JWT secret is not configured or is weak; this is acceptable in Development but NOT recommended for Production. Set 'JWT_SECRET' env var to a strong secret.");
+    }
+}
 
 // Configure Performance Settings
 builder.Services.Configure<PerformanceSettings>(builder.Configuration.GetSection("Performance"));
@@ -204,7 +230,7 @@ builder.Services.AddAuthentication(options =>
 .AddJwtBearer(options =>
 {
     options.SaveToken = true;
-    options.RequireHttpsMetadata = false; // Set to true in production
+    options.RequireHttpsMetadata = builder.Environment.IsProduction(); // Require HTTPS metadata in production
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,

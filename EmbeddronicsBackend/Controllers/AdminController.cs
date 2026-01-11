@@ -59,7 +59,7 @@ public class AdminController : BaseApiController
                         o.Id,
                         o.Title,
                         o.Status,
-                        ClientName = o.Client.Name,
+                        ClientName = o.Client != null ? o.Client.Name : null,
                         o.CreatedAt
                     })
                     .ToListAsync(),
@@ -105,9 +105,9 @@ public class AdminController : BaseApiController
 
             if (!string.IsNullOrEmpty(search))
             {
-                query = query.Where(u => u.Name.Contains(search) || 
-                                       u.Email.Contains(search) || 
-                                       u.Company.Contains(search));
+                query = query.Where(u => (u.Name != null && u.Name.Contains(search)) || 
+                                       (u.Email != null && u.Email.Contains(search)) || 
+                                       (u.Company != null && u.Company.Contains(search)));
             }
 
             if (!string.IsNullOrEmpty(status))
@@ -130,8 +130,8 @@ public class AdminController : BaseApiController
                     u.Company,
                     u.Phone,
                     u.CreatedAt,
-                    OrderCount = u.Orders.Count(),
-                    LastOrderDate = u.Orders.Any() ? u.Orders.OrderByDescending(o => o.CreatedAt).First().CreatedAt : (DateTime?)null
+                    OrderCount = u.Orders != null ? u.Orders.Count() : 0,
+                    LastOrderDate = (u.Orders != null && u.Orders.Any()) ? u.Orders.OrderByDescending(o => o.CreatedAt).First().CreatedAt : (DateTime?)null
                 })
                 .ToListAsync();
 
@@ -357,7 +357,7 @@ public class AdminController : BaseApiController
                     q.Status,
                     q.ValidUntil,
                     q.CreatedAt,
-                    ClientName = q.Client.Name,
+                    ClientName = q.Client != null ? q.Client.Name : null,
                     OrderTitle = q.Order != null ? q.Order.Title : "Unknown Order"
                 })
                 .ToListAsync();

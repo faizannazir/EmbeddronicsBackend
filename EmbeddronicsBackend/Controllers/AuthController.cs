@@ -180,5 +180,36 @@ namespace EmbeddronicsBackend.Controllers
                 return InternalServerError<bool>("An internal error occurred");
             }
         }
+
+        /// <summary>
+        /// Admin: change their own password
+        /// </summary>
+        [HttpPost("admin/change-password")]
+        [Authorize(Policy = "AdminOnly")]
+        public async Task<ActionResult<ApiResponse<bool>>> ChangeOwnPassword([FromBody] ChangePasswordRequest request)
+        {
+            try
+            {
+                var user = await _authService.GetCurrentUserAsync(User);
+                if (user == null)
+                {
+                    return NotFound<bool>("User not found");
+                }
+
+                var result = await _authService.ChangeOwnPasswordAsync(user.Id, request.CurrentPassword, request.NewPassword);
+                
+                if (result)
+                {
+                    return Success(true, "Password changed successfully. Please log in again.");
+                }
+
+                return BadRequest<bool>("Failed to change password. Check current password and password rules.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error changing own password");
+                return InternalServerError<bool>("An internal error occurred");
+            }
+        }
     }
 }

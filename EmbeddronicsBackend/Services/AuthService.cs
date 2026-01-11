@@ -281,6 +281,42 @@ namespace EmbeddronicsBackend.Services
             }
         }
 
+        public async Task<bool> ChangeOwnPasswordAsync(int userId, string currentPassword, string newPassword)
+        {
+            try
+            {
+                var user = await _context.Users.FindAsync(userId);
+                if (user == null)
+                {
+                    _logger.LogWarning("Change own password failed - user not found: {UserId}", userId);
+                    return false;
+                }
+
+                // Verify current password
+                if (!VerifyPassword(currentPassword, user.PasswordHash))
+                {
+                    _logger.LogWarning("Change own password failed - invalid current password for user: {UserId}", userId);
+                    return false;
+                }
+
+                // Update to new password (hash it)
+                user.PasswordHash = HashPassword(newPassword);
+                user.UpdatedAt = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+
+                // Revoke existing tokens so user must re-authenticate
+                await RevokeAllUserTokensAsync(userId);
+
+                _logger.LogInformation("Password changed for user: {UserId}", userId);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error changing password for user: {UserId}", userId);
+                return false;
+            }
+        }
+
         private string HashPassword(string password)
         {
             return BCrypt.Net.BCrypt.HashPassword(password, BCrypt.Net.BCrypt.GenerateSalt(12));

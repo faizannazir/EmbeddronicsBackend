@@ -4,7 +4,7 @@ Content-Type: application/json
 
 {
   "email": "info@embeddronics.com",
-  "password": "Admin@123"
+  "password": "EmbeddronicsKSA@786"
 }
 
 ### Test Login with Another Admin
@@ -13,7 +13,7 @@ Content-Type: application/json
 
 {
   "email": "faizannazir289@gmail.com",
-  "password": "Admin@123"
+  "password": "EmbeddronicsPK@786"
 }
 
 ### Test Invalid Login

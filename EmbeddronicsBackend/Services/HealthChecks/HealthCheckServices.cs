@@ -185,7 +185,7 @@ public class ExternalServicesHealthCheck : IHealthCheck
         services["SeqLogging"] = seqUrl;
 
         // Check JWT configuration
-        var jwtConfigured = !string.IsNullOrEmpty(_configuration["JwtSettings:SecretKey"]);
+        var jwtConfigured = !string.IsNullOrEmpty(_configuration["JwtSettings:SecretKey"]) || !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("JWT_SECRET"));
         services["JwtAuthentication"] = jwtConfigured ? "Configured" : "Not Configured";
         if (!jwtConfigured) allHealthy = false;
 

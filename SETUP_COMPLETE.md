@@ -68,7 +68,7 @@
 
 ```
 Username: admin
-Password: adminpass
+Password: Provided via ADMIN_DEFAULT_PASSWORD (or generated in Development)
 Role: admin
 ```
 
