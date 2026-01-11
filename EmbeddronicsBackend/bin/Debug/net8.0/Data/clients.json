@@ -1,4 +1,0 @@
-[
-  { "Id": 1, "Name": "John Doe", "Email": "john@example.com", "Phone": "1234567890", "Company": "Tech Corp", "Address": "123 Main St", "Status": "Active", "TotalOrders": 5, "TotalSpent": 5000 },
-  { "Id": 2, "Name": "Jane Smith", "Email": "jane@example.com", "Phone": "0987654321", "Company": "Innovation Inc", "Address": "456 Oak Ave", "Status": "Active", "TotalOrders": 3, "TotalSpent": 3000 }
-]

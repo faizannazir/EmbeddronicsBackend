@@ -1,4 +1,0 @@
-[
-  { "Id": 1, "Name": "Bob Wilson", "Email": "bob@example.com", "Phone": "5551234567", "Company": "StartUp LLC", "Message": "Interested in IoT solutions", "Source": "Website", "Status": "New" },
-  { "Id": 2, "Name": "Alice Brown", "Email": "alice@example.com", "Phone": "5559876543", "Company": "Enterprise Co", "Message": "Need PCB design", "Source": "Referral", "Status": "Contacted" }
-]

@@ -1,4 +1,0 @@
-[
-  { "Id": 1, "Type": "Income", "Category": "Product Sale", "Amount": 500, "Description": "PCB Design Service", "Reference": "ORD-001", "PaymentMethod": "Credit Card" },
-  { "Id": 2, "Type": "Expense", "Category": "Materials", "Amount": 100, "Description": "PCB components", "Reference": "INV-001", "PaymentMethod": "Bank Transfer" }
-]
