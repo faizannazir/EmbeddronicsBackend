@@ -1,29 +1,61 @@
 [
   {
     "Id": 1,
-    "Name": "Industrial ESP32-S3 Gateway Module",
-    "Description": "DIN-rail mountable gateway core. Features RS485 (Modbus) and CAN bus interface. Designed for industrial automation retrofits.",
-    "Price": 149.99,
-    "Category": "Hardware Modules",
-    "ImageUrl": "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&q=80&w=800",
+    "name": "Industrial ESP32-S3 Gateway Module",
+    "description": "DIN-rail mountable gateway core. Features RS485 (Modbus) and CAN bus interface. Designed for industrial automation retrofits.",
+    "price": 149.99,
+    "category": "Hardware Modules",
+    "image": "https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&q=80&w=800",
+    "features": [
+      "ESP32-S3 Dual Core",
+      "RS485 & CAN Bus",
+      "9-36V Input",
+      "Industrial Temp Range"
+    ],
+    "models": [
+      {
+        "id": "m1",
+        "name": "Assembly View",
+        "fileType": "glb",
+        "url": "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
+        "version": "v1.0",
+        "visibility": "public",
+        "linkedId": "1",
+        "uploadDate": "2023-11-01"
+      }
+    ],
     "InStock": true
   },
   {
     "Id": 2,
-    "Name": "STM32H7 DSP Breakout Board",
-    "Description": "High-density breakout for STM32H7. 4-Layer impedance controlled design for signal integrity testing.",
-    "Price": 89.50,
-    "Category": "Development Boards",
-    "ImageUrl": "https://images.unsplash.com/photo-1603732551681-2e91159b9dc2?auto=format&fit=crop&q=80&w=800",
+    "name": "STM32H7 DSP Breakout Board",
+    "description": "High-density breakout for STM32H7. 4-Layer impedance controlled design for signal integrity testing.",
+    "price": 89.50,
+    "category": "Development Boards",
+    "image": "https://images.unsplash.com/photo-1603732551681-2e91159b9dc2?auto=format&fit=crop&q=80&w=800",
+    "features": [
+      "480MHz Cortex-M7",
+      "Impedance Matched Traces",
+      "Camera Interface",
+      "MicroSD Slot"
+    ],
+    "models": [],
     "InStock": true
   },
   {
     "Id": 3,
-    "Name": "BLE 5.2 Sensor Node (Reference Design)",
-    "Description": "Low-power sensor node reference. nRF52832 based. Schematics available upon request.",
-    "Price": 34.00,
-    "Category": "Sensors",
-    "ImageUrl": "https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&q=80&w=800",
+    "name": "BLE 5.2 Sensor Node (Reference Design)",
+    "description": "Low-power sensor node reference. nRF52832 based. Schematics available upon request.",
+    "price": 34.00,
+    "category": "Sensors",
+    "image": "https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&q=80&w=800",
+    "features": [
+      "nRF52832 SoC",
+      "Coin Cell Holder",
+      "Onboard Antenna",
+      "BME280 Sensor"
+    ],
+    "models": [],
     "InStock": true
   }
 ]

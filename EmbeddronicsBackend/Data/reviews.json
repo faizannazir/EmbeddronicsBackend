@@ -1,52 +1,52 @@
 [
   {
     "Id": 1,
-    "ClientName": "Pamela James",
-    "ClientEmail": "pamela@example.com",
-    "ProductId": 0,
-    "ProductName": "Web Design, SEO, Social Media",
-    "Rating": 5,
-    "Comment": "Embeddronics has been an invaluable partner in my photography journey. They redesigned my website, making it more visually appealing and easier to navigate.",
-    "IsApproved": true
+    "clientName": "Pamela James",
+    "clientType": "CEO, Bics Solutions (Belgium)",
+    "serviceProvided": "Web Design, SEO, Social Media",
+    "content": "Embeddronics has been an invaluable partner in my photography journey. They redesigned my website, making it more visually appealing and easier to navigate. Embeddronics also manages my website, social media accounts, and SEO, so that I can focus on my photography. Overall, Embeddronics has helped me to take my photography to the next level and share the beauty of Saudi Arabia with the world.",
+    "rating": 5,
+    "approved": true,
+    "date": "2024-03-10T00:00:00Z"
   },
   {
     "Id": 2,
-    "ClientName": "Dr. Othman Alfurayh",
-    "ClientEmail": "othman@example.com",
-    "ProductId": 0,
-    "ProductName": "Embedded System Design",
-    "Rating": 5,
-    "Comment": "Looking for cutting-edge embedded system design? Choose Embeddronics. They offer a wide range of electronic design services.",
-    "IsApproved": true
+    "clientName": "Dr. Othman Alfurayh",
+    "clientType": "Photography Enthusiast, Saudi Arabia",
+    "serviceProvided": "Embedded System Design",
+    "content": "Looking for cutting-edge embedded system design? Choose Embeddronics. They offer a wide range of electronic design services, from initial requirement analysis to prototyping and testing. Their efficiency was proven in the rapid completion of the ‘Vertex Golf SmartCore Motion Sensor’ project. Their services span schematic design, PCB layout, and prototype testing. With a focus on PCB development, they can design new boards or enhance existing circuits seamlessly.",
+    "rating": 5,
+    "approved": true,
+    "date": "2024-02-18T00:00:00Z"
   },
   {
     "Id": 3,
-    "ClientName": "Robert Slade-Baker",
-    "ClientEmail": "robert@vertexgolf.com",
-    "ProductId": 0,
-    "ProductName": "Embedded System Design",
-    "Rating": 5,
-    "Comment": "Embeddronics has been our trusted partner for a long time, collaborating on numerous projects. Their expertise in embedded systems has been instrumental to our success.",
-    "IsApproved": true
+    "clientName": "Robert Slade-Baker",
+    "clientType": "CEO, Vertex Golf Ltd (UK)",
+    "serviceProvided": "Embedded System Design",
+    "content": "Embeddronics has been our trusted partner for a long time, collaborating on numerous projects. Their expertise in embedded systems has been instrumental to our success. They consistently deliver high-quality products and services, and their commitment to going beyond the scope of their responsibilities has been invaluable. For instance, in the Satellite Track project, Embeddronics designed a multi layers PCB and helped us optimize component selection to reduce costs while maintaining high-quality standards.",
+    "rating": 5,
+    "approved": true,
+    "date": "2024-01-25T00:00:00Z"
   },
   {
     "Id": 4,
-    "ClientName": "Amir Zakaria",
-    "ClientEmail": "amir@kacific.com",
-    "ProductId": 0,
-    "ProductName": "PCB Design & Manufacturing",
-    "Rating": 5,
-    "Comment": "Embeddronics provided us with a comprehensive solution for our satellite tracking system. Their team handled everything from design to manufacturing.",
-    "IsApproved": true
+    "clientName": "Amir Zakaria",
+    "clientType": "Product Manager, Kacific Broadband Satellites Group (Singapore)",
+    "serviceProvided": "PCB Design & Manufacturing",
+    "content": "Embeddronics provided us with a comprehensive solution for our online store. Their team of experts handled everything from design and development to hosting and maintenance, ensuring a seamless and efficient process. We are incredibly satisfied with the final product and appreciate their ongoing support. Embeddronics dedication to customer satisfaction and their commitment to delivering high-quality results have made them an invaluable partner for our business.",
+    "rating": 5,
+    "approved": true,
+    "date": "2024-01-10T00:00:00Z"
   },
   {
     "Id": 5,
-    "ClientName": "William Smith",
-    "ClientEmail": "william@crave.ca",
-    "ProductId": 0,
-    "ProductName": "IoT Solutions",
-    "Rating": 5,
-    "Comment": "Embeddronics has been an invaluable partner in our IoT journey. Their team provided the expertise we needed to deploy innovative IoT solutions.",
-    "IsApproved": true
+    "clientName": "William Smith",
+    "clientType": "Ecommerce Business Head, Crave (Canada)",
+    "serviceProvided": "IoT Solutions",
+    "content": "Embeddronics has been an invaluable partner in our IoT journey. Their team of highly skilled and experienced engineers has provided us with the expertise we need to develop and deploy innovative IoT solutions that have improved our efficiency and productivity. Embeddronics commitment to customer satisfaction is evident in their willingness to go the extra mile to ensure that we are happy with their work. They are also very responsive to our needs and are always available to answer our questions.",
+    "rating": 5,
+    "approved": true,
+    "date": "2024-01-05T00:00:00Z"
   }
 ]

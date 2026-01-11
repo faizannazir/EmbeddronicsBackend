@@ -1,35 +1,54 @@
 [
   {
     "Id": 1,
-    "Title": "Controlled Impedance in 4-Layer Stackups",
-    "Content": "Full detailed content about impedance control in PCB design...",
-    "Excerpt": "How to calculate and route impedance matched traces for USB and Ethernet.",
-    "Author": "Lead PCB Engineer",
-    "ImageUrl": "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&q=80&w=800",
-    "Tags": ["PCB", "Design", "Engineering"],
-    "IsPublished": true,
-    "Views": 152
+    "title": "Controlled Impedance in 4-Layer Stackups",
+    "excerpt": "How to calculate and route impedance matched traces for USB and Ethernet.",
+    "content": "Full content about controlled impedance...",
+    "author": "Lead PCB Engineer",
+    "date": "2023-10-15T00:00:00Z",
+    "image": "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&q=80&w=800",
+    "category": "Engineering",
+    "status": "published",
+    "Tags": [
+      "PCB",
+      "Engineering",
+      "Hardware"
+    ],
+    "IsPublished": true
   },
   {
     "Id": 2,
-    "Title": "Design for Manufacturing (DFM) Checklist",
-    "Content": "Complete DFM checklist for PCB designers...",
-    "Excerpt": "5 common mistakes to avoid before sending your Gerbers to the fab house.",
-    "Author": "Manufacturing Team",
-    "ImageUrl": "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=800",
-    "Tags": ["Manufacturing", "PCB", "Best Practices"],
-    "IsPublished": true,
-    "Views": 203
+    "title": "Design for Manufacturing (DFM) Checklist",
+    "excerpt": "5 common mistakes to avoid before sending your Gerbers to the fab house.",
+    "content": "Full content about DFM checklist...",
+    "author": "Manufacturing Team",
+    "date": "2023-11-02T00:00:00Z",
+    "image": "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=800",
+    "category": "Manufacturing",
+    "status": "published",
+    "Tags": [
+      "Manufacturing",
+      "DFM",
+      "PCB"
+    ],
+    "IsPublished": true
   },
   {
     "Id": 3,
-    "Title": "Connecting Hardware to the Cloud: ESP32 & AWS IoT",
-    "Content": "Step-by-step guide to IoT cloud integration...",
-    "Excerpt": "A guide to secure MQTT communication for embedded devices.",
-    "Author": "Software Team",
-    "ImageUrl": "https://images.unsplash.com/photo-1592659762303-90081d34b277?auto=format&fit=crop&q=80&w=800",
-    "Tags": ["IoT", "Cloud", "ESP32"],
-    "IsPublished": true,
-    "Views": 315
+    "title": "Connecting Hardware to the Cloud: ESP32 & AWS IoT",
+    "excerpt": "A guide to secure MQTT communication for embedded devices.",
+    "content": "Full content about ESP32 & AWS IoT...",
+    "author": "Software Team",
+    "date": "2023-12-10T00:00:00Z",
+    "image": "https://images.unsplash.com/photo-1592659762303-90081d34b277?auto=format&fit=crop&q=80&w=800",
+    "category": "IoT",
+    "status": "published",
+    "Tags": [
+      "IoT",
+      "ESP32",
+      "AWS",
+      "Software"
+    ],
+    "IsPublished": true
   }
 ]
